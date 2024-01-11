@@ -29,11 +29,16 @@
 >
 > **Windows**: Untested, but should work. I can't help you with any issues you may have.
 
-Before proceeding with installation Run this notebook. You will get a https://<gibberish>.trycloudflare.com link. Copy that link and paste it in the api_base parameter in the next step.
+Before proceeding with installation Run this notebook. 
 
 <a target="_blank" href="https://colab.research.google.com/drive/17k8M_uLIvbqupquuLX_xBT6d7VWLGBjy?usp=sharing">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
+
+Wait until all dependencies and model gets downloaded.<br>
+You will get a https://<gibberish>.trycloudflare.com link. <br>
+Copy that link and paste it in the api_base parameter in the next step.
+
 
 1. Install poetry
   ```shell
