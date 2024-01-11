@@ -31,7 +31,7 @@
 
 Before proceeding with installation Run this notebook. 
 
-<a target="_blank" href="https://colab.research.google.com/drive/17k8M_uLIvbqupquuLX_xBT6d7VWLGBjy">
+<a target="_blank" href="https://colab.research.google.com/drive/1ySI02whuIWCREEqdroyGG7nRe5uO3wjS">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
