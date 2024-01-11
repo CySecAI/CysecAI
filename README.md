@@ -23,6 +23,27 @@
 </p>
 <br>
 
+### CysecAI Interpreter Dev Usage 
+
+> **Linux**: Recommended, I can help you with any issues you may have.
+>
+> **Windows**: Untested, but should work. I can't help you with any issues you may have.
+
+1. Install poetry
+  ```shell
+  curl -sSL https://install.python-poetry.org | python3 -
+  ```
+2. Install dependencies
+  ```shell
+  poetry install
+  ```
+3. Run the interpreter
+  ```shell
+  poetry run interpreter --api_base "<your api base from colab notebook>" --api_key "sk-xxx" -m "gpt-3.5-turbo" 
+  ```
+<br>
+<br>
+
 ```shell
 pip install open-interpreter
 ```
