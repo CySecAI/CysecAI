@@ -31,13 +31,13 @@
 
 Before proceeding with installation Run this notebook. 
 
-<a target="_blank" href="https://colab.research.google.com/drive/1ySI02whuIWCREEqdroyGG7nRe5uO3wjS">
+<a target="_blank" href="https://colab.research.google.com/drive/17k8M_uLIvbqupquuLX_xBT6d7VWLGBjy">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
 Wait until all dependencies and model gets downloaded.<br>
-You will get a https://<gibberish>.trycloudflare.com link. <br>
-Copy that link and paste it in the api_base parameter in the next step.
+You will get a `https://<gibberish>.trycloudflare.com/` link. <br>
+Copy that link with `v1` suffix, looks like `https://<gibberish>.trycloudflare.com/v1` and paste it in the api_base parameter in the next step.
 
 
 1. Install poetry
