@@ -29,15 +29,21 @@
 >
 > **Windows**: Untested, but should work. I can't help you with any issues you may have.
 
+Before proceeding with installation Run this notebook. You will get a https://<gibberish>.trycloudflare.com link. Copy that link and paste it in the api_base parameter in the next step.
+
+<a target="_blank" href="https://colab.research.google.com/drive/17k8M_uLIvbqupquuLX_xBT6d7VWLGBjy?usp=sharing">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
+
 1. Install poetry
   ```shell
   curl -sSL https://install.python-poetry.org | python3 -
   ```
-2. Install dependencies
+1. Install dependencies
   ```shell
   poetry install
   ```
-3. Run the interpreter
+1. Run the interpreter
   ```shell
   poetry run interpreter --api_base "<your api base from colab notebook>" --api_key "sk-xxx" -m "gpt-3.5-turbo" 
   ```
