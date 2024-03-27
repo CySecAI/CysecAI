@@ -13,4 +13,7 @@ COPY . .
 
 RUN poetry install
 
-CMD ["poetry", "--version"]
+ARG API_URL
+ENV API_URL=${API_URL}
+
+ENTRYPOINT [ "bash" ]
