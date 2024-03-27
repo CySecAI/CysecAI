@@ -1,0 +1,7 @@
+.github/
+__pycache__
+docs/
+.gitignore
+*.yml
+*.yaml
+*.pyc
