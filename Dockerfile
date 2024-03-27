@@ -1,14 +1,16 @@
-FROM python
+FROM python:3.11-slim
 
-RUN pip install poetry
+RUN apt-get update && apt-get install -y python3-dev gcc pipx \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml poetry.lock /app/
+RUN pipx install poetry
+
+ENV PATH="/root/.local/bin:${PATH}"
 
 WORKDIR /app
 
+COPY . .
+
 RUN poetry install
 
-COPY . /app/
-
-CMD ["/root/.poetry/bin/python3"]
-
+CMD ["poetry", "--version"]
