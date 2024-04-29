@@ -3,7 +3,7 @@ import os
 import appdirs
 
 # Using appdirs to determine user-specific config path
-config_dir = appdirs.user_config_dir("Open Interpreter")
+config_dir = appdirs.user_config_dir("CySecAI")
 
 
 def get_storage_path(subdirectory=None):

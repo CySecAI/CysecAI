@@ -48,7 +48,7 @@ def terminal_interface(interpreter, message):
     # Probably worth abstracting this to something like "debug_cli" at some point.
     if not interpreter.auto_run and not interpreter.offline:
         interpreter_intro_message = [
-            "**Open Interpreter** will require approval before running code."
+            "**CySecAI** will require approval before running code."
         ]
 
         if interpreter.safe_mode == "ask" or interpreter.safe_mode == "auto":
@@ -74,7 +74,7 @@ def terminal_interface(interpreter, message):
     while True:
         try:
             if interactive:
-                ### This is the primary input for Open Interpreter.
+                ### This is the primary input for CySecAI.
                 message = input("> ").strip()
 
                 try:
@@ -104,7 +104,7 @@ def terminal_interface(interpreter, message):
                 continue
             if message.strip() == "pip install --upgrade open-interpreter":
                 print(
-                    "Please exit this conversation, then run `pip install --upgrade open-interpreter`."
+                    "Please exit this conversation"
                 )
                 continue
 

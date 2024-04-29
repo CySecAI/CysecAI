@@ -19,7 +19,7 @@ class Os:
 
     def notify(self, text):
         try:
-            title = "Open Interpreter"
+            title = "CySecAI"
 
             if len(text) > 200:
                 text = text[:200] + "..."
