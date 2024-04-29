@@ -167,7 +167,7 @@ def handle_count_tokens(self, prompt):
         )
 
     outputs.append(
-        f"**Note**: This functionality is currently experimental and may not be accurate. Please report any issues you find to the [Open Interpreter GitHub repository](https://github.com/KillianLucas/open-interpreter)."
+        f"**Note**: This functionality is currently experimental and may not be accurate. Please report any issues you find to the [CySecAI GitHub repository](https://github.com/KillianLucas/open-interpreter)."
     )
 
     display_markdown_message("\n".join(outputs))

@@ -62,6 +62,7 @@ def respond(interpreter):
             break
         # Provide extra information on how to change API keys, if we encounter that error
         # (Many people writing GitHub issues were struggling with this)
+        
         except Exception as e:
             if (
                 interpreter.offline == False

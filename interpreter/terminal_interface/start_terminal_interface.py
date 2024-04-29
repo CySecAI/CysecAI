@@ -10,7 +10,6 @@ import pkg_resources
 
 from .conversation_navigator import conversation_navigator
 from .utils.apply_config import apply_config
-from .utils.check_for_update import check_for_update
 from .utils.display_markdown_message import display_markdown_message
 from .utils.get_config import get_config_path
 from .validate_llm_settings import validate_llm_settings
@@ -203,7 +202,7 @@ def start_terminal_interface(interpreter):
         {
             "name": "os",
             "nickname": "os",
-            "help_text": "experimentally let Open Interpreter control your mouse and keyboard",
+            "help_text": "experimentally let CySecAI control your mouse and keyboard",
             "type": bool,
         },
         # Special commands
@@ -224,7 +223,7 @@ def start_terminal_interface(interpreter):
         },
         {
             "name": "version",
-            "help_text": "get Open Interpreter's version number",
+            "help_text": "get CySecAI's version number",
             "type": bool,
         },
     ]
@@ -239,7 +238,7 @@ def start_terminal_interface(interpreter):
             sys.argv.remove("-d")
         sys.argv.append("--verbose")
 
-    parser = argparse.ArgumentParser(description="Open Interpreter")
+    parser = argparse.ArgumentParser(description="CySecAI")
 
     # Add arguments
     for arg in arguments:
@@ -291,7 +290,7 @@ def start_terminal_interface(interpreter):
     args = parser.parse_args()
 
     # This should be pushed into an open_config.py util
-    # If --config is used, open the config.yaml file in the Open Interpreter folder of the user's config dir
+    # If --config is used, open the config.yaml file in the CySecAI folder of the user's config dir
     if args.config:
         if args.config_file:
             config_file = get_config_path(args.config_file)
@@ -337,7 +336,7 @@ def start_terminal_interface(interpreter):
     if args.version:
         version = pkg_resources.get_distribution("open-interpreter").version
         update_name = "New Computer"  # Change this with each major update
-        print(f"Open Interpreter {version} {update_name}")
+        print(f"CySecAI {version} {update_name}")
         return
 
     if args.fast:
@@ -379,7 +378,7 @@ def start_terminal_interface(interpreter):
 
         interpreter.system_message = """
         
-You are Open Interpreter, a world-class programmer that can complete any goal by executing code.
+You are CySecAI, a world-class programmer that can complete any goal by executing code.
 
 When you write code, it will be executed **on the user's machine**. The user has given you **full and complete permission** to execute any code necessary to complete the task.
 
@@ -525,7 +524,7 @@ Include `computer.display.view()` after a 2 second delay at the end of _every_ c
         # console.print(Panel("[bold italic white on black]OS CONTROL[/bold italic white on black] Enabled", box=box.SQUARE, expand=False), style="white on black")
 
         if not args.offline and not args.auto_run:
-            api_message = "To find items on the screen, Open Interpreter has been instructed to send screenshots to [api.openinterpreter.com](https://api.openinterpreter.com/) (we do not store them). Add `--offline` to attempt this locally."
+            api_message = "To find items on the screen, CySecAI has been instructed to send screenshots to [api.openinterpreter.com](https://api.openinterpreter.com/) (we do not store them). Add `--offline` to attempt this locally."
             display_markdown_message(api_message)
             print("")
 
@@ -535,7 +534,7 @@ Include `computer.display.view()` after a 2 second delay at the end of _every_ c
             print("")
 
         # # FOR TESTING ONLY
-        # # Install Open Interpreter from GitHub
+        # # Install CySecAI from GitHub
         # for chunk in interpreter.computer.run(
         #     "shell",
         #     "pip install git+https://github.com/KillianLucas/open-interpreter.git",
@@ -554,7 +553,7 @@ Include `computer.display.view()` after a 2 second delay at the end of _every_ c
 
         if not args.auto_run:
             display_markdown_message(
-                "**Warning:** In this mode, Open Interpreter will not require approval before performing actions. Be ready to close your terminal."
+                "**Warning:** In this mode, CySecAI will not require approval before performing actions. Be ready to close your terminal."
             )
             print("")  # < - Aesthetic choice
 
@@ -562,7 +561,7 @@ Include `computer.display.view()` after a 2 second delay at the end of _every_ c
         # Default local (LM studio) attributes
 
         if not (args.os or args.vision):
-            interpreter.system_message = "You are Open Interpreter, a world-class programmer that can execute code on the user's machine."
+            interpreter.system_message = "You are CySecAI, a world-class programmer that can execute code on the user's machine."
 
         interpreter.offline = True
         interpreter.llm.model = "openai/x"  # "openai/" tells LiteLLM it's an OpenAI compatible server, the "x" part doesn't matter
@@ -574,7 +573,7 @@ Include `computer.display.view()` after a 2 second delay at the end of _every_ c
         if not (args.os or args.vision):
             display_markdown_message(
                 """
-> Open Interpreter's local mode is powered by **`LM Studio`**.
+> CySecAI's local mode is powered by **`LM Studio`**.
 
 
 You will need to run **LM Studio** in the background.
@@ -614,16 +613,7 @@ Once the server is running, you can begin your conversation below.
                 )
 
     # Check for update
-    try:
-        if not args.offline:
-            # This message should actually be pushed into the utility
-            if check_for_update():
-                display_markdown_message(
-                    "> **A new version of Open Interpreter is available.**\n>Please run: `pip install --upgrade open-interpreter`\n\n---"
-                )
-    except:
-        # Doesn't matter
-        pass
+    
 
     # Apply config
     if args.config_file:
