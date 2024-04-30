@@ -71,9 +71,7 @@ def display_welcome_message_once():
     if not hasattr(display_welcome_message_once, "_displayed"):
         display_markdown_message(
             """
-        ●
-
-        Welcome to **CySecAI**.
+        ● Starting **CySecAI**.
         """
         )
         time.sleep(1.5)
