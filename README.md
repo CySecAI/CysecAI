@@ -32,7 +32,7 @@ poetry install
 1. Run the CysecAI
 
 ```shell
-poetry run cyscai --api_base "<your api base from colab notebook>" --api_key "sk-xxx" -m "gpt-3.5-turbo"
+poetry run cysecai --api_base "<your api base from colab notebook>" --api_key "sk-xxx" -m "gpt-3.5-turbo" --context_window 8192
 ```
 
 <br>
