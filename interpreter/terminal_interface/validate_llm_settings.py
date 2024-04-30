@@ -28,27 +28,29 @@ def validate_llm_settings(interpreter):
                 if not os.environ.get("OPENAI_API_KEY") and not interpreter.llm.api_key:
                     display_welcome_message_once()
 
+                    display_markdown_message("> API key not found. Set to default \"sx-xxx\"")
+
+                    interpreter.llm.api_key = "sx-xxx"
+            
+                if not os.environ.get("API_BASE") and not interpreter.llm.api_base:
+                    display_welcome_message_once()
+                    
                     display_markdown_message(
-                        """---
-                    > OpenAI API key not found
+                        """> API Base URL not found
+                    
+                    Head to Google colab or any other platform and run below notebook to get the API Base URL.
+                    
+                    Link to ipynb file: https://colab.research.google.com/drive/1ySI02whuIWCREEqdroyGG7nRe5uO3wjS
+                    ---
                     """
                     )
-
-                    response = getpass.getpass("OpenAI API key: ")
-                    print(f"OpenAI API key: {response[:4]}...{response[-4:]}")
-
-                    display_markdown_message(
-                        """
-
-                    **Tip:** To save this key for later, run `export OPENAI_API_KEY=your_api_key` on Mac/Linux or `setx OPENAI_API_KEY your_api_key` on Windows.
                     
-                    ---"""
-                    )
+                    response = input("API Base URL: ")
+                    print(f"Enter API Base URL: {response}")
+                    
+                    interpreter.llm.api_base = response
 
-                    interpreter.llm.api_key = response
-                    time.sleep(2)
-                    break
-
+                break
             # This is a model we don't have checks for yet.
             break
 
