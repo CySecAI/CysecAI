@@ -31,11 +31,21 @@ def validate_llm_settings(interpreter):
                     display_markdown_message(
                         """---
                     > OpenAI API key not found
-                    ---
                     """
                     )
 
-                    interpreter.llm.api_key = "sx-xxxx"
+                    response = getpass.getpass("OpenAI API key: ")
+                    print(f"OpenAI API key: {response[:4]}...{response[-4:]}")
+
+                    display_markdown_message(
+                        """
+
+                    **Tip:** To save this key for later, run `export OPENAI_API_KEY=your_api_key` on Mac/Linux or `setx OPENAI_API_KEY your_api_key` on Windows.
+                    
+                    ---"""
+                    )
+
+                    interpreter.llm.api_key = response
                     time.sleep(2)
                     break
 
