@@ -1,13 +1,13 @@
 <h1 align="center">● CysecAI</h1>
 
 <br>
-### CysecAI CysecAI Dev Usage 
+### CysecAI CysecAI Dev Usage
 
 > **Linux**: Recommended, I can help you with any issues you may have.
 >
 > **Windows**: Untested, but should work. I can't help you with any issues you may have.
 
-Before proceeding with installation Run this notebook. 
+Before proceeding with installation Run this notebook.
 
 <a target="_blank" href="https://colab.research.google.com/drive/1ySI02whuIWCREEqdroyGG7nRe5uO3wjS">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="CysecAIIn Colab"/>
@@ -17,19 +17,24 @@ Wait until all dependencies and model gets downloaded.<br>
 You will get a `https://<gibberish>.trycloudflare.com/` link. <br>
 Copy that link with `v1` suffix, looks like `https://<gibberish>.trycloudflare.com/v1` and paste it in the api_base parameter in the next step.
 
-
 1. Install poetry
-  ```shell
-  curl -sSL https://install.python-poetry.org | python3 -
-  ```
+
+```shell
+curl -sSL https://install.python-poetry.org | python3 -
+```
+
 1. Install dependencies
-  ```shell
-  poetry install
-  ```
+
+```shell
+poetry install
+```
+
 1. Run the CysecAI
-  ```shell
-  poetry run cyscai --api_base "<your api base from colab notebook>" --api_key "sk-xxx" -m "gpt-3.5-turbo" 
-  ```
+
+```shell
+poetry run cyscai --api_base "<your api base from colab notebook>" --api_key "sk-xxx" -m "gpt-3.5-turbo"
+```
+
 <br>
 <br>
 
@@ -183,4 +188,3 @@ We then stream the model's messages, code, and your system's outputs to the term
 Thank you for your interest in contributing! We welcome involvement from the community.
 
 Please see our [contributing guidelines](docs/CONTRIBUTING.md) for more details on how to get involved.
-
