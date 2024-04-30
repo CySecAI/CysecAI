@@ -57,7 +57,7 @@ def terminal_interface(interpreter, message):
                     f"**Safe Mode**: {interpreter.safe_mode}\n\n>Note: **Safe Mode** requires `semgrep` (`pip install semgrep`)"
                 )
         else:
-            interpreter_intro_message.append("Use `interpreter -y` to bypass this.")
+            interpreter_intro_message.append("Use `cysecai -y` to bypass this.")
 
         interpreter_intro_message.append("Press `CTRL-C` to exit.")
 

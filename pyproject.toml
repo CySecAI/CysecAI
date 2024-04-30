@@ -58,7 +58,9 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 interpreter = "interpreter:interpreter.start_terminal_interface"
+cysecai = "interpreter:interpreter.start_terminal_interface"
 i = "interpreter:interpreter.start_terminal_interface"
+c = "interpreter:interpreter.start_terminal_interface"
 
 [tool.black]
 target-version = ['py311']
