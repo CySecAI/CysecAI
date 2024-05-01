@@ -15,12 +15,8 @@ from .utils.local_storage_path import get_storage_path
 
 
 def conversation_navigator(interpreter):
-    print(
-        "This feature is not working as of 0.2.0 (The New Computer Update). Please consider submitting a PR to repair it with the new streaming format."
-    )
     import time
 
-    time.sleep(5)
     conversations_dir = get_storage_path("conversations")
 
     display_markdown_message(
@@ -66,6 +62,10 @@ def conversation_navigator(interpreter):
         ),
     ]
     answers = inquirer.prompt(questions)
+
+    # User chose to exit
+    if not answers:
+        return
 
     # If the user selected to open the folder, do so and return
     if answers["name"] == "> Open folder":

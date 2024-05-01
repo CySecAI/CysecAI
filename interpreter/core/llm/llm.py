@@ -9,6 +9,7 @@ from .run_text_llm import run_text_llm
 from .utils.convert_to_openai_messages import convert_to_openai_messages
 
 litellm.suppress_debug_info = True
+import time
 
 
 class Llm:
@@ -24,7 +25,7 @@ class Llm:
         self.completions = fixed_litellm_completions
 
         # Settings
-        self.model = "gpt-4"
+        self.model = "gpt-4-turbo"
         self.temperature = 0
         self.supports_vision = False
         self.supports_functions = None  # Will try to auto-detect
@@ -58,28 +59,23 @@ class Llm:
             ), "No message after the first can have the role 'system'"
 
         # Detect function support
-        if self.supports_functions != None:
-            supports_functions = self.supports_functions
-        else:
-            # Guess whether or not it's a function calling LLM
-            if not self.interpreter.offline and (
-                self.interpreter.llm.model != "gpt-4-vision-preview"
-                and self.model in litellm.open_ai_chat_completion_models
-                or self.model.startswith("azure/")
-                # Once Litellm supports it, add Anthropic models here
-            ):
-                supports_functions = True
-            else:
-                supports_functions = False
-
+        if self.supports_functions == None:
+            try:
+                if litellm.supports_function_calling(self.model):
+                    self.supports_functions = True
+                else:
+                    self.supports_functions = False
+            except:
+                self.supports_functions = False
+            
         # Trim image messages if they're there
         if self.supports_vision:
             image_messages = [msg for msg in messages if msg["type"] == "image"]
 
             if self.interpreter.os:
-                # Keep only the last image if the interpreter is running in OS mode
+                # Keep only the last two images if the interpreter is running in OS mode
                 if len(image_messages) > 1:
-                    for img_msg in image_messages[:-1]:
+                    for img_msg in image_messages[:-2]:
                         messages.remove(img_msg)
                         if self.interpreter.verbose:
                             print("Removing image message!")
@@ -95,10 +91,20 @@ class Llm:
         # Convert to OpenAI messages format
         messages = convert_to_openai_messages(
             messages,
-            function_calling=supports_functions,
+            function_calling=self.supports_functions,
             vision=self.supports_vision,
             shrink_images=self.interpreter.shrink_images,
         )
+
+        if self.interpreter.debug:
+            print("\n\n\nOPENAI COMPATIBLE MESSAGES\n\n\n")
+            for message in messages:
+                if len(str(message)) > 5000:
+                    print(str(message)[:200] + "...")
+                else:
+                    print(message)
+                print("\n")
+            print("\n\n\n")
 
         system_message = messages[0]["content"]
         messages = messages[1:]
@@ -172,10 +178,10 @@ Continuing...
         }
 
         # Optional inputs
-        if self.api_base:
-            params["api_base"] = self.api_base
         if self.api_key:
             params["api_key"] = self.api_key
+        if self.api_base:
+            params["api_base"] = self.api_base
         if self.api_version:
             params["api_version"] = self.api_version
         if self.max_tokens:
@@ -189,7 +195,7 @@ Continuing...
         if self.interpreter.verbose:
             litellm.set_verbose = True
 
-        if supports_functions:
+        if self.supports_functions:
             yield from run_function_calling_llm(self, params)
         else:
             yield from run_text_llm(self, params)

@@ -2,20 +2,21 @@
 This file defines the Interpreter class.
 It's the main file. `from interpreter import interpreter` will import an instance of this class.
 """
-
 import json
 import os
-import traceback
+import threading
+import time
 from datetime import datetime
 
-from ..terminal_interface.start_terminal_interface import start_terminal_interface
 from ..terminal_interface.terminal_interface import terminal_interface
+from ..terminal_interface.utils.display_markdown_message import display_markdown_message
 from ..terminal_interface.utils.local_storage_path import get_storage_path
+from ..terminal_interface.utils.oi_dir import oi_dir
 from .computer.computer import Computer
 from .default_system_message import default_system_message
-from .extend_system_message import extend_system_message
 from .llm.llm import Llm
 from .respond import respond
+from .server import server
 from .utils.telemetry import send_telemetry
 from .utils.truncate_output import truncate_output
 
@@ -38,52 +39,107 @@ class OpenInterpreter:
     6. Decide when the process is finished based on the language model's response.
     """
 
-    def start_terminal_interface(self):
-        # This shouldn't really be my responsibility but it made poetry scripts easier to set up.
-        # Can we put this function elsewhere and get poetry scripts to run it?
-        start_terminal_interface(self)
-
-    def __init__(self):
+    def __init__(
+        self,
+        messages=None,
+        offline=False,
+        auto_run=False,
+        verbose=False,
+        debug=False,
+        max_output=2800,
+        safe_mode="off",
+        shrink_images=False,
+        force_task_completion=False,
+        force_task_completion_message="""Proceed. You CAN run code on my machine. If you want to run code, start your message with "```"! If the entire task I asked for is done, say exactly 'The task is done.' If you need some specific information (like username or password) say EXACTLY 'Please provide more information.' If it's impossible, say 'The task is impossible.' (If I haven't provided a task, say exactly 'Let me know what you'd like to do next.') Otherwise keep going.""",
+        force_task_completion_breakers=[
+            "the task is done.",
+            "the task is impossible.",
+            "let me know what you'd like to do next.",
+            "please provide more information.",
+        ],
+        disable_telemetry=os.getenv("DISABLE_TELEMETRY", "false").lower() == "true",
+        in_terminal_interface=False,
+        conversation_history=True,
+        conversation_filename=None,
+        conversation_history_path=get_storage_path("conversations"),
+        os=False,
+        speak_messages=False,
+        llm=None,
+        system_message=default_system_message,
+        custom_instructions="",
+        computer=None,
+        sync_computer=False,
+        import_computer_api=False,
+        skills_path=None,
+        import_skills=False,
+        multi_line=False,
+    ):
         # State
-        self.messages = []
+        self.messages = [] if messages is None else messages
+        self.responding = False
+        self.last_messages_count = 0
 
         # Settings
-        self.offline = False
-        self.auto_run = False
-        self.verbose = False
-        self.max_output = 2800  # Max code block output visible to the LLM
-        self.safe_mode = "off"
-        # this isn't right... this should be in the llm, and have a better name, and more customization:
-        self.shrink_images = (
-            False  # Shrinks all images passed into model to less than 1024 in width
-        )
-        self.force_task_completion = False
-        self.anonymous_telemetry = os.getenv("ANONYMIZED_TELEMETRY", "True") == "True"
-        self.in_terminal_interface = False
+        self.offline = offline
+        self.auto_run = auto_run
+        self.verbose = verbose
+        self.debug = debug
+        self.max_output = max_output
+        self.safe_mode = safe_mode
+        self.shrink_images = shrink_images
+        self.disable_telemetry = disable_telemetry
+        self.in_terminal_interface = in_terminal_interface
+        self.multi_line = multi_line
 
-        # Conversation history (this should not be here)
-        self.conversation_history = True
-        self.conversation_filename = None
-        self.conversation_history_path = get_storage_path("conversations")
+        # Loop messages
+        self.force_task_completion = force_task_completion
+        self.force_task_completion_message = force_task_completion_message
+        self.force_task_completion_breakers = force_task_completion_breakers
+
+        # Conversation history
+        self.conversation_history = conversation_history
+        self.conversation_filename = conversation_filename
+        self.conversation_history_path = conversation_history_path
 
         # OS control mode related attributes
-        self.os = False
-        self.speak_messages = False
+        self.os = os
+        self.speak_messages = speak_messages
 
         # LLM
-        self.llm = Llm(self)
+        self.llm = Llm(self) if llm is None else llm
 
-        # These are LLM related, but they're actually not
-        # the responsibility of the stateless LLM to manage / remember!
-        self.system_message = default_system_message
-        self.custom_instructions = ""
+        # These are LLM related
+        self.system_message = system_message
+        self.custom_instructions = custom_instructions
 
         # Computer
-        self.computer = Computer()
+        self.computer = Computer(self) if computer is None else computer
+        self.sync_computer = sync_computer
+        self.computer.import_computer_api = import_computer_api
 
-    def chat(self, message=None, display=True, stream=False):
+        # Skills
+        if skills_path:
+            self.computer.skills.path = skills_path
+
+        self.computer.import_skills = import_skills
+
+    def server(self, *args, **kwargs):
+        server(self, *args, **kwargs)
+
+    def wait(self):
+        while self.responding:
+            time.sleep(0.2)
+        # Return new messages
+        return self.messages[self.last_messages_count :]
+
+    @property
+    def anonymous_telemetry(self) -> bool:
+        return not self.disable_telemetry and not self.offline
+
+    def chat(self, message=None, display=True, stream=False, blocking=True):
         try:
-            if self.anonymous_telemetry and not self.offline:
+            self.responding = True
+            if self.anonymous_telemetry:
                 message_type = type(
                     message
                 ).__name__  # Only send message type, no content
@@ -96,20 +152,27 @@ class OpenInterpreter:
                     },
                 )
 
+            if not blocking:
+                chat_thread = threading.Thread(
+                    target=self.chat, args=(message, display, stream, True)
+                )  # True as in blocking = True
+                chat_thread.start()
+                return
+
             if stream:
                 return self._streaming_chat(message=message, display=display)
-
-            initial_message_count = len(self.messages)
 
             # If stream=False, *pull* from the stream.
             for _ in self._streaming_chat(message=message, display=display):
                 pass
 
             # Return new messages
-            return self.messages[initial_message_count:]
+            self.responding = False
+            return self.messages[self.last_messages_count :]
 
         except Exception as e:
-            if self.anonymous_telemetry and not self.offline:
+            self.responding = False
+            if self.anonymous_telemetry:
                 message_type = type(message).__name__
                 send_telemetry(
                     "errored",
@@ -152,6 +215,10 @@ class OpenInterpreter:
             elif isinstance(message, list):
                 self.messages = message
 
+            # Now that the user's messages have been added, we set last_messages_count.
+            # This way we will only return the messages after what they added.
+            self.last_messages_count = len(self.messages)
+
             # DISABLED because I think we should just not transmit images to non-multimodal models?
             # REENABLE this when multimodal becomes more common:
 
@@ -170,9 +237,11 @@ class OpenInterpreter:
             if self.conversation_history:
                 # If it's the first message, set the conversation name
                 if not self.conversation_filename:
-                    first_few_words = "_".join(
-                        self.messages[0]["content"][:25].split(" ")[:-1]
-                    )
+                    first_few_words_list = self.messages[0]["content"][:25].split(" ")
+                    if len(first_few_words_list) >= 2:  # for languages like English with blank between words
+                        first_few_words = "_".join(first_few_words_list[:-1])
+                    else:  # for languages like Chinese without blank between words
+                        first_few_words = self.messages[0]["content"][:15]
                     for char in '<>:"/\\|?*!':  # Invalid characters for filenames
                         first_few_words = first_few_words.replace(char, "")
 
@@ -284,13 +353,14 @@ class OpenInterpreter:
 
     def reset(self):
         self.computer.terminate()  # Terminates all languages
+        self.computer._has_imported_computer_api = False  # Flag reset
+        self.messages = []
+        self.last_messages_count = 0
 
-        # Reset the function below, in case the user set it
-        self.extend_system_message = lambda: extend_system_message(self)
+    def display_message(self, markdown):
+        # This is just handy for start_script in profiles.
+        display_markdown_message(markdown)
 
-        self.__init__()
-
-    # These functions are worth exposing to developers
-    # I wish we could just dynamically expose all of our functions to devs...
-    def extend_system_message(self):
-        return extend_system_message(self)
+    def get_oi_dir(self):
+        # Again, just handy for start_script in profiles.
+        return oi_dir

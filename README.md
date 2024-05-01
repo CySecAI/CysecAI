@@ -56,7 +56,7 @@ This provides a natural-language interface to your computer's general-purpose ca
 
 You can modify the `max_tokens` and `context_window` (in tokens) of locally running models.
 
-For local mode, smaller context windows will use less RAM, so we recommend trying a much shorter window (~1000) if it's is failing / if it's slow. Make sure `max_tokens` is less than `context_window`.
+For local mode, smaller context windows will use less RAM, so we recommend trying a much shorter window (~1000) if it's failing / if it's slow. Make sure `max_tokens` is less than `context_window`.
 
 ```shell
 CysecAI --local --max_tokens 1000 --context_window 3000
@@ -89,7 +89,7 @@ In the interactive mode, you can use the below commands to enhance your experien
 - `%tokens [prompt]`: (_Experimental_) Calculate the tokens that will be sent with the next prompt as context and estimate their cost. Optionally calculate the tokens and estimated cost of a `prompt` if one is provided. Relies on [LiteLLM's `cost_per_token()` method](https://docs.litellm.ai/docs/completion/token_usage#2-cost_per_token) for estimated costs.
 - `%help`: Show the help message.
 
-### Configuration
+### Configuration / Profiles
 
 CysecAI allows you to set default behaviors using a `config.yaml` file.
 
@@ -101,13 +101,11 @@ Run the following command to CysecAIthe configuration file:
 CysecAI --config
 ```
 
-#### Multiple Configuration Files
+You can add `yaml` files there. The default profile is named `default.yaml`.
 
 CysecAI supports multiple `config.yaml` files, allowing you to easily switch between configurations via the `--config_file` argument.
 
-**Note**: `--config_file` accepts either a file name or a file path. File names will use the default configuration directory, while file paths will use the specified path.
-
-To create or edit a new configuration, run:
+Open Interpreter supports multiple `yaml` files, allowing you to easily switch between configurations:
 
 ```
 CysecAI --config --config_file $config_path
@@ -164,6 +162,12 @@ pip install fastapi uvicorn
 uvicorn server:app --reload
 ```
 
+You can also start a server identical to the one above by simply running `interpreter.server()`.
+
+## Android
+
+The step-by-step guide for installing Open Interpreter on your Android device can be found in the [open-interpreter-termux repo](https://github.com/MikeBirdTech/open-interpreter-termux).
+
 ## Safety Notice
 
 Since generated code is executed in your local environment, it can interact with your files and system settings, potentially leading to unexpected outcomes like data loss or security risks.
@@ -183,6 +187,34 @@ There is **experimental** support for a [safe mode](docs/SAFE_MODE.md) to help m
 CysecAI equips a [function-calling language model](https://platform.openai.com/docs/guides/gpt/function-calling) with an `exec()` function, which accepts a `language` (like "Python" or "JavaScript") and `code` to run.
 
 We then stream the model's messages, code, and your system's outputs to the terminal as Markdown.
+
+# Access Documentation Offline
+
+The full [documentation](https://docs.openinterpreter.com/) is accessible on-the-go without the need for an internet connection.
+
+[Node](https://nodejs.org/en) is a pre-requisite:
+
+- Version 18.17.0 or any later 18.x.x version.
+- Version 20.3.0 or any later 20.x.x version.
+- Any version starting from 21.0.0 onwards, with no upper limit specified.
+
+Install [Mintlify](https://mintlify.com/):
+
+```bash
+npm i -g mintlify@latest
+```
+
+Change into the docs directory and run the appropriate command:
+
+```bash
+# Assuming you're at the project's root directory
+cd ./docs
+
+# Run the documentation server
+mintlify dev
+```
+
+A new browser window should open. The documentation will be available at [http://localhost:3000](http://localhost:3000) as long as the documentation server is running.
 
 # Contributing
 

@@ -1,8 +1,12 @@
-import getpass
+"""
+I do not like this and I want to get rid of it lol. Like, what is it doing..?
+"""
+
 import os
 import time
 
 import litellm
+from prompt_toolkit import prompt
 
 from .utils.display_markdown_message import display_markdown_message
 
@@ -25,7 +29,7 @@ def validate_llm_settings(interpreter):
 
             # OpenAI
             if interpreter.llm.model in litellm.open_ai_chat_completion_models:
-                if not os.environ.get("OPENAI_API_KEY") and not interpreter.llm.api_key:
+                if not os.environ.get("OPENAI_API_KEY") and not interpreter.llm.api_key and not interpreter.llm.api_base:
                     display_welcome_message_once()
 
                     display_markdown_message("> API key not found. Set to default \"sx-xxx\"")
