@@ -28,14 +28,48 @@ class Terminal:
     def get_language(self, language):
         for lang in self.languages:
             if language.lower() == lang.name.lower() or (
-                hasattr(lang, "aliases") and language in lang.aliases
+                hasattr(lang, "aliases") and language.lower() in (alias.lower() for alias in lang.aliases)
             ):
                 return lang
         return None
 
-    def run(self, language, code):
+    def run(self, language, code, stream=False, display=False):
+        # Llama 3 likes to hallucinate this tick new line thing at the start of code blocks
+        if code.startswith("`\n"):
+            code = code[2:].strip()
+            
+        if code.startswith("```\n"):
+            code = code[4:].strip() 
+
+        if stream == False:
+            # If stream == False, *pull* from _streaming_run.
+            output_messages = []
+            for chunk in self._streaming_run(language, code, display=display):
+                if chunk.get("format") != "active_line":
+                    # Should we append this to the last message, or make a new one?
+                    if (
+                        output_messages != []
+                        and output_messages[-1].get("type") == chunk["type"]
+                        and output_messages[-1].get("format") == chunk["format"]
+                    ):
+                        output_messages[-1]["content"] += chunk["content"]
+                    else:
+                        output_messages.append(chunk)
+            return output_messages
+
+        elif stream == True:
+            # If stream == True, replace this with _streaming_run.
+            return self._streaming_run(language, code, display=display)
+
+    def _streaming_run(self, language, code, display=False):
         if language not in self._active_languages:
-            self._active_languages[language] = self.get_language(language)()
+            # Get the language. Pass in self.computer *if it takes a single argument*
+            # but pass in nothing if not. This makes custom languages easier to add / understand.
+            lang_class = self.get_language(language)
+            if lang_class.__init__.__code__.co_argcount > 1:
+                self._active_languages[language] = lang_class(self.computer)
+            else:
+                self._active_languages[language] = lang_class()
         try:
             for chunk in self._active_languages[language].run(code):
                 # self.format_to_recipient can format some messages as having a certain recipient.
@@ -55,6 +89,14 @@ class Terminal:
                         )
 
                 yield chunk
+
+                # Print it also if display = True
+                if (
+                    display
+                    and chunk.get("format") != "active_line"
+                    and chunk.get("content")
+                ):
+                    print(chunk["content"], end="")
 
         except GeneratorExit:
             self.stop()
